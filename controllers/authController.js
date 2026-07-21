@@ -116,6 +116,7 @@ export const verifyEmailController = async(req,res)=>{
 export const loginController = async (req,res) => {
     try{
         const {role,email,password} = req.body;
+        console.log(req.body);
         
         if(!role || !email || !password){
             return res.status(400).send({
@@ -125,6 +126,8 @@ export const loginController = async (req,res) => {
         }
 
         const existingUser = await Users.findOne({email});
+       
+
         if(!existingUser){
             return res.status(400).send({
                 success : false,
@@ -185,7 +188,7 @@ export const loginController = async (req,res) => {
 export const currentUserController = async(req,res) => {
     try {
        const user1 = await Users.findById(req.user.userId).select("-password");
-
+       
        if(!user1){
         return res.status(404).send({
             success : false,

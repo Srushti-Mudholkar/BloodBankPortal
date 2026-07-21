@@ -138,25 +138,135 @@ export const sendBloodIssuedEmail = async ({ hospitalEmail, hospitalName, bloodG
   });
 };
 
-export const sendRequestStatusEmail = async ({ email, name, status, bloodGroup, quantity }) => {
+export const sendRequestStatusEmail = async ({
+  email,
+  name,
+  status,
+  bloodGroup,
+  quantity,
+  requestType,
+}) => {
   const isApproved = status === "approved";
+
+  const title =
+    requestType === "donor" ? "Donation Request" : "Blood Request";
+
+  const subject = `${isApproved ? "✅" : "❌"} ${title} ${
+    isApproved ? "Approved" : "Rejected"
+  } — BloodCare`;
+
+  let message = "";
+  let nextStep = "";
+
+  if (requestType === "donor") {
+    if (isApproved) {
+      message = `
+        Thank you for your willingness to donate blood.
+        Your donation request for <strong>${quantity} units of ${bloodGroup}</strong>
+        has been <strong style="color:#16a34a;">approved</strong>.
+      `;
+
+      nextStep = `
+        <div style="background:#ecfdf5;border-left:4px solid #16a34a;padding:16px;border-radius:8px;margin-top:24px;">
+          <strong>Next Step</strong>
+          <p style="margin:8px 0 0;color:#4b5563;">
+            Please visit the selected organisation with a valid ID to complete your blood donation.
+            Thank you for helping save lives.
+          </p>
+        </div>
+      `;
+    } else {
+      message = `
+        We regret to inform you that your donation request for
+        <strong>${quantity} units of ${bloodGroup}</strong>
+        has been <strong style="color:#dc2626;">rejected</strong>.
+      `;
+
+      nextStep = `
+        <div style="background:#fef2f2;border-left:4px solid #dc2626;padding:16px;border-radius:8px;margin-top:24px;">
+          <strong>Need Help?</strong>
+          <p style="margin:8px 0 0;color:#4b5563;">
+            Please contact the organisation if you would like more information regarding this decision.
+          </p>
+        </div>
+      `;
+    }
+  } else {
+    // Hospital Request
+
+    if (isApproved) {
+      message = `
+        Your request for
+        <strong>${quantity} units of ${bloodGroup}</strong>
+        has been <strong style="color:#16a34a;">approved</strong>.
+      `;
+
+      nextStep = `
+        <div style="background:#eff6ff;border-left:4px solid #2563eb;padding:16px;border-radius:8px;margin-top:24px;">
+          <strong>Next Step</strong>
+          <p style="margin:8px 0 0;color:#4b5563;">
+            The organisation will arrange the requested blood units shortly.
+            Please coordinate with them regarding collection.
+          </p>
+        </div>
+      `;
+    } else {
+      message = `
+        We regret to inform you that your request for
+        <strong>${quantity} units of ${bloodGroup}</strong>
+        has been <strong style="color:#dc2626;">rejected</strong>.
+      `;
+
+      nextStep = `
+        <div style="background:#fef2f2;border-left:4px solid #dc2626;padding:16px;border-radius:8px;margin-top:24px;">
+          <strong>Need Help?</strong>
+          <p style="margin:8px 0 0;color:#4b5563;">
+            Please try another organisation or contact the organisation directly for assistance.
+          </p>
+        </div>
+      `;
+    }
+  }
+
   await sendEmail({
     to: email,
-    subject: `${isApproved ? "✅" : "❌"} Blood Request ${isApproved ? "Approved" : "Rejected"} — BloodCare`,
+    subject,
     html: `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #eee;">
-        <div style="background:${isApproved ? "linear-gradient(135deg,#16a34a,#22c55e)" : "linear-gradient(135deg,#dc2626,#ef4444)"};padding:32px;text-align:center;">
-          <h1 style="color:#fff;margin:0;font-size:28px;">🩸 BloodCare</h1>
-          <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;">Request ${isApproved ? "Approved" : "Rejected"}</p>
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+
+        <div style="background:${
+          isApproved
+            ? "linear-gradient(135deg,#16a34a,#22c55e)"
+            : "linear-gradient(135deg,#dc2626,#ef4444)"
+        };padding:30px;text-align:center;">
+          <h1 style="margin:0;color:#ffffff;">🩸 BloodCare</h1>
+          <p style="margin-top:10px;color:#f3f4f6;font-size:16px;">
+            ${title} ${isApproved ? "Approved" : "Rejected"}
+          </p>
         </div>
-        <div style="padding:32px;">
-          <h2 style="color:#1f2937;margin-top:0;">Hello, ${name}</h2>
-          <p style="color:#6b7280;line-height:1.6;">Your blood request for <strong>${quantity} units of ${bloodGroup}</strong> has been <strong style="color:${isApproved ? "#16a34a" : "#dc2626"}">${status}</strong>.</p>
-          ${isApproved ? `<p style="color:#6b7280;">The organisation will arrange the blood units shortly. Thank you for using BloodCare.</p>` : `<p style="color:#6b7280;">Please try requesting from another organisation or contact them directly.</p>`}
+
+        <div style="padding:30px;">
+          <h2 style="margin-top:0;color:#111827;">
+            Hello, ${name}
+          </h2>
+
+          <p style="font-size:15px;line-height:1.8;color:#4b5563;">
+            ${message}
+          </p>
+
+          ${nextStep}
+
+          <p style="margin-top:30px;font-size:15px;color:#4b5563;">
+            Thank you for using <strong>BloodCare</strong>.
+          </p>
         </div>
-        <div style="background:#f9fafb;padding:20px;text-align:center;border-top:1px solid #eee;">
-          <p style="color:#9ca3af;font-size:12px;margin:0;">BloodCare Portal — Saving Lives Together</p>
+
+        <div style="background:#f9fafb;padding:20px;text-align:center;border-top:1px solid #e5e7eb;">
+          <p style="margin:0;color:#9ca3af;font-size:12px;">
+            BloodCare Portal — Saving Lives Together ❤️
+          </p>
         </div>
+
       </div>
     `,
   });

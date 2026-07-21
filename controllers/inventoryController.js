@@ -268,3 +268,64 @@ export const getHospitalHistoryController = async (req, res) => {
     return res.status(500).send({ success: false, message: "Error fetching history", error: error.message });
   }
 };
+
+// GET DONORS WHO HAVE DONATED TO THIS ORGANISATION
+export const getOrgDonorsController = async (req, res) => {
+  try {
+    // Find all "in" inventory records for this org, get unique donor ids
+    const records = await Inventory.find({
+      organisation: req.user.userId,
+      inventoryType: "in",
+    }).populate("donor", "name email bloodGroup phone address");
+
+    // deduplicate — one donor may have donated multiple times
+    const seen = new Set();
+    const donors = [];
+    for (const r of records) {
+      if (r.donor && !seen.has(r.donor._id.toString())) {
+        seen.add(r.donor._id.toString());
+        donors.push(r.donor);
+      }
+    }
+
+    return res.status(200).send({ success: true, message: "Donors fetched", donors });
+  } catch (error) {
+    return res.status(500).send({ success: false, message: "Error fetching donors", error: error.message });
+  }
+};
+
+// GET HOSPITALS WHO HAVE RECEIVED BLOOD FROM THIS ORGANISATION
+export const getOrgHospitalsController = async (req, res) => {
+  try {
+    // Find all "out" inventory records for this org, get unique hospital ids
+    const records = await Inventory.find({
+      organisation: req.user.userId,
+      inventoryType: "out",
+    }).populate("hospital", "hospitalName email phone address website");
+
+    // deduplicate — one hospital may have received blood multiple times
+    const seen = new Set();
+    const hospitals = [];
+    for (const r of records) {
+      if (r.hospital && !seen.has(r.hospital._id.toString())) {
+        seen.add(r.hospital._id.toString());
+        hospitals.push(r.hospital);
+      }
+    }
+
+    return res.status(200).send({ success: true, message: "Hospitals fetched", hospitals });
+  } catch (error) {
+    return res.status(500).send({ success: false, message: "Error fetching hospitals", error: error.message });
+  }
+};
+
+// GET ALL ORGANISATIONS — for donor/hospital request form dropdown
+export const getOrganisationsListController = async (req, res) => {
+  try {
+    const organisations = await Users.find({ role: "organisation" }).select("-password").sort({ createdAt: -1 });
+    return res.status(200).send({ success: true, message: "Organisations fetched", organisations });
+  } catch (error) {
+    return res.status(500).send({ success: false, message: "Error fetching organisations", error: error.message });
+  }
+};
+

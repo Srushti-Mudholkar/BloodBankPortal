@@ -11,8 +11,8 @@ const requestRouter = express.Router();
 requestRouter.post("/create",authMiddleware,validate(createRequestSchema),createRequestController);
 
 // GET routes — no body to validate
-requestRouter.get("/my-requests", authMiddleware, getMyRequestsController);
-requestRouter.get("/org-requests", authMiddleware, getOrgRequestsController);
+requestRouter.get("/my-requests", authMiddleware, getMyRequestsController); // donor organisation
+requestRouter.get("/org-requests", authMiddleware, getOrgRequestsController); // organisation
 
 // PUT /api/v1/request/update-status/:id
 // authMiddleware → validate → updateRequestStatusController

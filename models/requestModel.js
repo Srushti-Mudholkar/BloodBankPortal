@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 import Inventory from "../models/inventoryModel.js"
 
 const requestSchema = new mongoose.Schema({
-    bloodGroups : {
+    bloodGroup : {
         type : String,
         enum :  ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
         required : [true,'Blood Groups are requirted']

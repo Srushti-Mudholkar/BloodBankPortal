@@ -38,6 +38,7 @@ const userSchema = new mongoose.Schema(
     },
     website: {
       type: String,
+      unique: true,
       default: "",
     },
     address : {

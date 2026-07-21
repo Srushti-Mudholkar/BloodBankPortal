@@ -33,26 +33,27 @@ export const changePasswordController = async(req,res) => {
   try {
     const {currentPassword,newPassword} = req.body;
 
-    const user = await Users.findById(req.body.userId);
-
+    const user = await Users.findById(req.user.userId);
+    console.log(user)
     if(!user){
       return res.status(404).send({ success : false , message : 'User doesnt exist'});
     }
 
-    const isMatch = await bcrypt.compare(currentPassword,user.Password);
+    const isMatch = await bcrypt.compare(currentPassword,user.password);
 
     if(!isMatch){
       return res.status(404).send({ success : false , message : 'Invalid current passoword' })
     }
 
     const salt = await bcrypt.genSalt(10);
-    user.passoword = await bcrypt.hash(newPassword,salt);
+    user.password = await bcrypt.hash(newPassword,salt);
 
     await user.save();
 
     return res.status(200).send({ success : true, message : 'Successfully changed the passowrd'});
 
   } catch(e){
+    console.log(e)
      return res.status(500).send({
             success : false,
             message : 'An error occured while changing users password'
@@ -97,6 +98,10 @@ export const resetPasswordController = async(req, res) => {
       const {token} = req.params;
       const {newPassword} = req.body;
 
+      console.log("Token:", token);
+console.log("Body:", req.body);
+console.log("newPassword:", newPassword);
+
       const hashedPassword = crypto.createHash("sha256").update(token).digest("hex");
 
       const user = await Users.findOne({
@@ -112,11 +117,19 @@ export const resetPasswordController = async(req, res) => {
       }
 
       const salt = await bcrypt.genSalt(10);
-      user.passoword = await bcrypt.hash(newPassword, salt)
+      user.password = await bcrypt.hash(newPassword, salt)
       user.resetPasswordToken = undefined;
-      user. resetPasswordExpires = undefined;
+      user.resetPasswordExpires = undefined;
+
+      await user.save();
+
+      return res.status(200).send({
+  success: true,
+  message: "Password reset successfully",
+});
 
   } catch (e){
+    console.log(e)
      return res.status(500).send({
             success : false,
             message : 'An error occured while setting up the resetting the password'
