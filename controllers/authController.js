@@ -25,11 +25,23 @@ export const  registerController  = async(req ,res) => {
        // Generate verification token
       const verificationToken = crypto.randomBytes(32).toString("hex");
 
+      if (role !== "donor" && bloodGroup) {
+        return res.status(400).send({
+        success: false,
+        message: "Only donors can have a blood group."
+    });
+}
+
        const user = new Users({
          role,
-         name,
-         organisationName,
-         hospitalName,
+        //  name,
+        //  organisationName,
+        //  hospitalName,
+          ...(name && { name }),
+
+  ...(organisationName && { organisationName }),
+
+  ...(hospitalName && { hospitalName }),
          email,
          website,
          password : hashedPassword,
@@ -57,6 +69,7 @@ export const  registerController  = async(req ,res) => {
             _id : user._id,
             name : user.name,
             organisationName :  user.organisationName,
+            hospitalName :  user.hospitalName,
             email : user.email,
             phone : user.phone,
             address : user.address,
@@ -163,7 +176,7 @@ export const loginController = async (req,res) => {
             message : 'Login successful token created',
             token,
             user : {
-                name : existingUser.name,
+                name : existingUser.name || existingUser.organisationName || existingUser.hospitalName,
                 role : existingUser.role,
                 email : existingUser.email,
                 phone : existingUser.phone,

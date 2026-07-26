@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
 
-console.log(process.env.EMAIL_USER);
+// console.log(process.env.EMAIL_USER);
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",

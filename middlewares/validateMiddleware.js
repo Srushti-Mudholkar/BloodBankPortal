@@ -9,7 +9,7 @@ export const validate = (schema) => (req, res, next) => {
   if (!result.success) {
     // result.error.errors is an array of all validation errors
     // We map it to get just the messages in a clean format
-    const errorMessages = result.error.errors.map((err) => ({
+    const errorMessages = result.error.issues.map((err) => ({
       field: err.path.join("."), // which field failed e.g "email"
       message: err.message,      // what went wrong e.g "Invalid email"
     }));
@@ -23,5 +23,6 @@ export const validate = (schema) => (req, res, next) => {
 
   // Validation passed — replace req.body with the parsed/cleaned data
   req.body = { ...req.body, ...result.data };
+  console.log("req.body=",req.body);
   next();
 };

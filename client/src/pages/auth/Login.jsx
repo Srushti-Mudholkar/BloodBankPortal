@@ -23,10 +23,6 @@ const roles = [
 ];
 
 const Login = () => {
-  // Gives us the dispatch function to send actions to Redux
-// Example: dispatch(loginStart()), dispatch(loginSuccess())
-// dispatch → only talks to REDUX store
-// API.post → talks to the backend
 
   const dispatch = useDispatch();
  // Used to change pages after successful login
@@ -61,8 +57,9 @@ const Login = () => {
         // ProtectedRoute later reads these values
           dispatch(loginSuccess({ user: data.user, token: data.token }));
             // Get correct name according to user role
+          //  console.log(user);
           const name = data.user.name || data.user.organisationName || data.user.hospitalName;
-           
+        //  console.log(name);
         // Success notification
           toast.success(`Welcome back, ${name}! 🩸`);
           navigate(roleRedirect[data.user.role]);
