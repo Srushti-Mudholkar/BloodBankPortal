@@ -1,34 +1,35 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
+
 dotenv.config();
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // console.log(process.env.EMAIL_USER);
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 587,
+//   secure: false,
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
 
 // Generic send function
 const sendEmail = async ({ to, subject, html }) => {
   try {
-    await transporter.sendMail({
-      from: `"BloodCare Portal" <${process.env.EMAIL_USER}>`,
+    const response = await resend.emails.send({
+      from: "BloodCare <onboarding@resend.dev>",
       to,
       subject,
       html,
     });
-    console.log(`Email sent to ${to}`);
+
+    console.log("Email sent successfully:", response);
   } catch (e) {
-    console.error("Email error message:", e.message);
-     console.error("Email error code:", e.code);
-      console.error("Full email error:", e);
-    // Don't throw — email failure shouldn't break the main flow
+    console.error("Email error:", e);
   }
 };
 
