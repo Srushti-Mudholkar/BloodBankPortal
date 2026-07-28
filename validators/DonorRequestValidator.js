@@ -1,19 +1,19 @@
 import { z } from "zod";
 
-export const createRequestSchema = z.object({
+export const createDonorRequestSchema = z.object({
   bloodGroup: z.enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"], {
     required_error: "Blood group is required",
   }),
   quantity: z
     .number({ required_error: "Quantity is required" })
     .min(1, "Minimum 1 unit required"),
-  organisation: z.string({ required_error: "Organisation is required" }),
+  targetDonor: z.string({ required_error: "Target donor is required" }),
   message: z.string().optional(),
-  requestType: z.enum(["donor", "hospital", "donor-need"]).optional(),
 });
 
-export const updateRequestStatusSchema = z.object({
-  status: z.enum(["approved", "rejected"], {
+export const respondDonorRequestSchema = z.object({
+  status: z.enum(["accepted", "rejected"], {
     required_error: "Status is required",
   }),
+  responseMessage: z.string().optional(),
 });

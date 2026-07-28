@@ -6,10 +6,12 @@ import toast from "react-hot-toast";
 
 const navLinks = {
   donor: [
-    { to: "/donor/dashboard",  label: "Dashboard",        icon: "🏠" },
-    { to: "/donor/history",    label: "Donation History",  icon: "📋" },
-    { to: "/donor/requests",   label: "My Requests",       icon: "🩸" },
-    { to: "/profile",          label: "My Profile",        icon: "👤" },
+    { to: "/donor/dashboard",    label: "Dashboard",        icon: "🏠" },
+    { to: "/donor/history",      label: "Donation History",  icon: "📋" },
+    { to: "/donor/requests",     label: "Donate Blood",     icon: "🩸" },
+    { to: "/donor/need-blood",   label: "Need Blood",       icon: "💉" },
+    { to: "/donor/find-donors",  label: "Find Donors",      icon: "🔍" },
+    { to: "/profile",            label: "My Profile",        icon: "👤" },
   ],
   organisation: [
     { to: "/organisation/dashboard", label: "Dashboard",         icon: "🏠" },
@@ -30,6 +32,8 @@ const navLinks = {
     { to: "/admin/donors",        label: "Donors",        icon: "👤" },
     { to: "/admin/hospitals",     label: "Hospitals",     icon: "🏥" },
     { to: "/admin/organisations", label: "Organisations", icon: "🏢" },
+    { to: "/admin/inventory",      label: "Inventory",      icon: "🩸" },
+    { to: "/admin/org-breakdown",  label: "Blood Stock",    icon: "📊" },
     { to: "/profile",             label: "My Profile",    icon: "⚙️" },
   ],
 };

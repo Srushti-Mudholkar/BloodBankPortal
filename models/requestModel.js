@@ -14,7 +14,7 @@ const requestSchema = new mongoose.Schema({
     },
     requestType : {
         type : String,
-        enum : ['donor','hospital'],
+         enum: ["donor", "hospital", "donor-need"], // who is requesting
         required : [true,'request type is required']
     },
     requestedBy : {

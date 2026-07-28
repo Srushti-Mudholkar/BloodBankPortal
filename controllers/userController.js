@@ -11,13 +11,13 @@ export const updateProfileController = async(req,res) => {
       const updateProfile = await Users.findByIdAndUpdate(
         req.user.userId,
         {name,  organisationName, hospitalName,  website,  address, phone, bloodGroup},
-        {new : true, runvalidators : false}
+        {new : true, runValidators : false}
       ).select("-password")
 
        return res.status(200).send({
          success : true,
          message : 'User profile updated successfully',
-         updateProfile
+         user : updateProfile
        })
 
     } catch (e){
@@ -99,8 +99,8 @@ export const resetPasswordController = async(req, res) => {
       const {newPassword} = req.body;
 
       console.log("Token:", token);
-console.log("Body:", req.body);
-console.log("newPassword:", newPassword);
+      console.log("Body:", req.body);
+      console.log("newPassword:", newPassword);
 
       const hashedPassword = crypto.createHash("sha256").update(token).digest("hex");
 

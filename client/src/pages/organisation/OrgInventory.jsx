@@ -28,8 +28,9 @@ const OrgInventory = () => {
       quantity: Yup.number().min(1, "Min 1 unit").required("Quantity is required"),
       email: Yup.string().email("Invalid email").required("Email is required"),
     }),
-    onSubmit: async (values, { resetForm }) => {
-      try {
+   onSubmit: async (values, { resetForm, setSubmitting }) => {
+      setSubmitting(true);
+    try {
         const { data } = await API.post("/inventory/create", values);
         if (data.success) {
           toast.success(data.message);

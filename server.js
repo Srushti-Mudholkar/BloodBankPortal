@@ -10,6 +10,8 @@ import protectedRouter from "./routes/protectedRoutes.js";
 import requestRouter from "./routes/requestRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import authRouter from './routes/authRoutes.js'
+import donorRequestRouter from "./routes/donorRequestRoutes.js";
+
 
 dotenv.config();
 
@@ -35,6 +37,8 @@ app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/protected", protectedRouter);
 app.use("/api/v1/request", requestRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/donor-request", donorRequestRouter);
+
 
 const PORT = process.env.PORT || 8080;
 

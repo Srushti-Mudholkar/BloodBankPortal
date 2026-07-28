@@ -116,9 +116,7 @@ export const verifyEmailController = async(req,res)=>{
 
 
     }catch(e){
-
         console.log(e);
-
         return res.status(500).send({
             success:false,
             message:"Verification failed"
@@ -139,7 +137,7 @@ export const loginController = async (req,res) => {
         }
 
         const existingUser = await Users.findOne({email});
-       console.log(existingUser)
+        console.log(existingUser)
 
         if(!existingUser){
             return res.status(400).send({
@@ -176,13 +174,16 @@ export const loginController = async (req,res) => {
             message : 'Login successful token created',
             token,
             user : {
-                name : existingUser.name || existingUser.organisationName || existingUser.hospitalName,
-                role : existingUser.role,
-                email : existingUser.email,
-                phone : existingUser.phone,
-                address : existingUser.address,
-                bloodGroup : existingUser.bloodGroup,
-                website : existingUser.website
+               _id: existingUser._id,
+                name: existingUser.name,
+                organisationName: existingUser.organisationName,
+                hospitalName: existingUser.hospitalName,
+                role: existingUser.role,
+                email: existingUser.email,
+                phone: existingUser.phone,
+                address: existingUser.address,
+                bloodGroup: existingUser.bloodGroup,
+                website: existingUser.website,
             }
         })
 

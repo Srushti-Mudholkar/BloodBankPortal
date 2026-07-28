@@ -14,7 +14,7 @@ userRouter.put("/change-password", authMiddleware, changePasswordController);
 userRouter.post("/forgot-password",forgotPasswordController);
 
 // PUT /api/v1/user/reset-password/:token
-userRouter.post("/reset-password/:token",resetPasswordController);
+userRouter.put("/reset-password/:token",resetPasswordController);
 
 export default userRouter;
 

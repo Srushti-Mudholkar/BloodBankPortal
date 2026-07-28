@@ -9,6 +9,9 @@ import Register from "./pages/auth/Register.jsx";
 import DonorDashboard from "./pages/donor/DonorDashboard.jsx";
 import DonorHistory from "./pages/donor/DonorHistory.jsx";
 import DonorRequests from "./pages/donor/DonorRequests.jsx";
+import NeedBlood from "./pages/donor/NeedBlood.jsx";
+import DonorSearch from "./pages/donor/DonorSearch.jsx";
+
 
 import OrgDashboard from "./pages/organisation/OrgDashboard.jsx";
 import OrgInventory from "./pages/organisation/OrgInventory.jsx";
@@ -24,13 +27,13 @@ import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import AdminDonors from "./pages/admin/AdminDonors.jsx";
 import AdminHospitals from "./pages/admin/AdminHospitals.jsx";
 import AdminOrganisations from "./pages/admin/AdminOrganisations.jsx";
+import AdminInventory from "./pages/admin/AdminInventory.jsx";
+import AdminOrgBreakdown from "./pages/admin/AdminOrgBreakdown.jsx";
 
 import Profile from "./pages/Profile.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 import ResetPassword from "./pages/auth/ResetPassword.jsx";
 import VerifyEmail from "./pages/auth/VerifyEmail.jsx";
-
-
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -42,11 +45,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 function App() {
-  // const [isAvailable,showAvailable] = useState(false);
-
   return (
-    <>
-      <BrowserRouter>
+    <BrowserRouter>
       <Toaster position="top-right" />
       <Routes>
         {/* Public */}
@@ -61,34 +61,37 @@ function App() {
         <Route path="/donor/dashboard" element={<ProtectedRoute allowedRoles={["donor"]}><DonorDashboard /></ProtectedRoute>} />
         <Route path="/donor/history" element={<ProtectedRoute allowedRoles={["donor"]}><DonorHistory /></ProtectedRoute>} />
         <Route path="/donor/requests" element={<ProtectedRoute allowedRoles={["donor"]}><DonorRequests /></ProtectedRoute>} />
+        <Route path="/donor/need-blood" element={<ProtectedRoute allowedRoles={["donor"]}><NeedBlood /></ProtectedRoute>} />
+        <Route path="/donor/find-donors" element={<ProtectedRoute allowedRoles={["donor"]}><DonorSearch /></ProtectedRoute>} />
 
         {/* Organisation */}
-        <Route path="/organisation/dashboard" element={<ProtectedRoute allowedRoles={["organisation"]}><OrgDashboard/></ProtectedRoute>} />
+        <Route path="/organisation/dashboard" element={<ProtectedRoute allowedRoles={["organisation"]}><OrgDashboard /></ProtectedRoute>} />
         <Route path="/organisation/inventory" element={<ProtectedRoute allowedRoles={["organisation"]}><OrgInventory /></ProtectedRoute>} />
         <Route path="/organisation/donors" element={<ProtectedRoute allowedRoles={["organisation"]}><OrgDonors /></ProtectedRoute>} />
         <Route path="/organisation/hospitals" element={<ProtectedRoute allowedRoles={["organisation"]}><OrgHospitals /></ProtectedRoute>} />
-        <Route path="/organisation/requests" element={<ProtectedRoute allowedRoles={["organisation"]}><OrgRequests /></ProtectedRoute>} /> 
+        <Route path="/organisation/requests" element={<ProtectedRoute allowedRoles={["organisation"]}><OrgRequests /></ProtectedRoute>} />
 
         {/* Hospital */}
         <Route path="/hospital/dashboard" element={<ProtectedRoute allowedRoles={["hospital"]}><HospitalDashboard /></ProtectedRoute>} />
         <Route path="/hospital/history" element={<ProtectedRoute allowedRoles={["hospital"]}><HospitalHistory /></ProtectedRoute>} />
-        <Route path="/hospital/requests" element={<ProtectedRoute allowedRoles={["hospital"]}><HospitalRequests /></ProtectedRoute>} /> 
+        <Route path="/hospital/requests" element={<ProtectedRoute allowedRoles={["hospital"]}><HospitalRequests /></ProtectedRoute>} />
 
         {/* Admin */}
         <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
         <Route path="/admin/donors" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDonors /></ProtectedRoute>} />
         <Route path="/admin/hospitals" element={<ProtectedRoute allowedRoles={["admin"]}><AdminHospitals /></ProtectedRoute>} />
-        <Route path="/admin/organisations" element={<ProtectedRoute allowedRoles={["admin"]}><AdminOrganisations /></ProtectedRoute>} /> 
+        <Route path="/admin/organisations" element={<ProtectedRoute allowedRoles={["admin"]}><AdminOrganisations /></ProtectedRoute>} />
+        <Route path="/admin/inventory" element={<ProtectedRoute allowedRoles={["admin"]}><AdminInventory /></ProtectedRoute>} />
+        <Route path="/admin/org-breakdown" element={<ProtectedRoute allowedRoles={["admin"]}><AdminOrgBreakdown /></ProtectedRoute>} />
 
         {/* Profile — all roles */}
-        <Route path="/profile" element={<ProtectedRoute allowedRoles={["donor","organisation","hospital","admin"]}><Profile /></ProtectedRoute>} /> 
+        <Route path="/profile" element={<ProtectedRoute allowedRoles={["donor","organisation","hospital","admin"]}><Profile /></ProtectedRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
-    </>
-  )
+  );
 }
 
-export default App
+export default App;

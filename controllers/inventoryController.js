@@ -3,147 +3,74 @@ import Users from "../models/userModel.js";
 import mongoose from "mongoose";
 import { sendDonationConfirmationEmail, sendBloodIssuedEmail } from "../utils/emailService.js";
 
+// CREATE BLOOD INVENTORY (donation in / request out)
 export const createInventoryController = async (req, res) => {
   try {
-    const { inventoryType, bloodGroup, quantity, email } = req.body;
-    const orgId = req.user.userId;
-    const orgObjectId = new mongoose.Types.ObjectId(orgId);
-    
+    const { inventoryType, bloodGroup, quantity, email, organisation } = req.body;
+
+    // Validate donor/hospital email
     if (inventoryType === "in") {
       const donor = await Users.findOne({ email, role: "donor" });
-
       if (!donor) {
-        return res.status(404).send({
-          success: false,
-          message: "Donor not found",
-        });
+        return res.status(404).send({ success: false, message: "Donor not found with this email" });
       }
-
+      // Check donor blood group matches
       if (donor.bloodGroup !== bloodGroup) {
         return res.status(400).send({
           success: false,
           message: `Donor blood group is ${donor.bloodGroup}, not ${bloodGroup}`,
         });
       }
-
-      const inventory = await Inventory.create({
+      const inventory = new Inventory({
         inventoryType,
         bloodGroup,
         quantity,
         email,
         donor: donor._id,
-        organisation: orgId,
+        organisation: req.user.userId,
       });
+      await inventory.save();
 
-      const org = await Users.findById(orgId);
-
+      // Send confirmation email to donor
+      const org = await Users.findById(req.user.userId);
       await sendDonationConfirmationEmail({
         donorEmail: donor.email,
         donorName: donor.name,
         bloodGroup,
         quantity,
-        orgName: org?.organisationName || "BloodCare",
+        orgName: org?.organisationName || "BloodCare Organisation",
       });
 
-      return res.status(201).send({
-        success: true,
-        message: "Blood donated successfully",
-        inventory,
-      });
+      return res.status(201).send({ success: true, message: "Blood donated successfully", inventory });
     }
 
-   if (inventoryType === "out") {
-      console.log("===== OUT BLOCK EXECUTED =====");
-      const hospital = await Users.findOne({ email, role: "hospital" });
+    if (inventoryType === "out") {
+      // Blood out can go to a hospital OR a donor (donor-need case)
+      let recipient = await Users.findOne({ email, role: "hospital" });
+      let recipientType = "hospital";
 
-      if (!hospital) {
-        return res.status(404).send({
-          success: false,
-          message: "Hospital not found",
-        });
+      if (!recipient) {
+        recipient = await Users.findOne({ email, role: "donor" });
+        recipientType = "donor";
       }
 
-      // Calculate available blood
+      if (!recipient) {
+        return res.status(404).send({ success: false, message: "No hospital or donor found with this email" });
+      }
 
-     /* const totalIn = await Inventory.aggregate([
-        {
-          $match: {
-            organisation: orgId,
-            bloodGroup,
-            inventoryType: "in",
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: "$quantity" },
-          },
-        },
-      ]);
-
-      const totalOut = await Inventory.aggregate([
-        {
-          $match: {
-            organisation: orgId,
-            bloodGroup,
-            inventoryType: "out",
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: "$quantity" },
-          },
-        },
-      ]);
-
+      // Check available blood
+      const orgId = new mongoose.Types.ObjectId(req.user.userId);
       
+      const totalIn = await Inventory.aggregate([
+        { $match: { organisation: orgId, bloodGroup, inventoryType: "in" } },
+        { $group: { _id: null, total: { $sum: "$quantity" } } },
+      ]);
+      const totalOut = await Inventory.aggregate([
+        { $match: { organisation: orgId, bloodGroup, inventoryType: "out" } },
+        { $group: { _id: null, total: { $sum: "$quantity" } } },
+      ]);
 
-      console.log("Logged in org:", orgId);
-      console.log("Requested blood group:", bloodGroup);
-      console.log("Requested quantity:", quantity);
-
-      console.log("Total In:", totalIn);
-      console.log("Total Out:", totalOut);
-
-      const available = (totalIn[0]?.total || 0) - (totalOut[0]?.total || 0); */
-
-      // ==========================================================
-// TEMPORARY DEBUG CODE USING find()
-// ==========================================================
-
-const inDocs = await Inventory.find({
-  organisation: orgObjectId,
-  bloodGroup,
-  inventoryType: "in",
-});
-
-const outDocs = await Inventory.find({
-  organisation: orgObjectId,
-  bloodGroup,
-  inventoryType: "out",
-});
-
-const totalIn = inDocs.reduce((sum, doc) => sum + doc.quantity, 0);
-const totalOut = outDocs.reduce((sum, doc) => sum + doc.quantity, 0);
-
-const available = totalIn - totalOut;
-
-console.log("Logged in org:", orgId);
-console.log("Requested blood group:", bloodGroup);
-console.log("Requested quantity:", quantity);
-
-console.log("In Docs:", inDocs);
-console.log("Out Docs:", outDocs);
-
-console.log("Total In:", totalIn);
-console.log("Total Out:", totalOut);
-console.log("Available:", available);
-
-// ==========================================================
-// END DEBUG CODE
-// ==
-
+      const available = (totalIn[0]?.total || 0) - (totalOut[0]?.total || 0);
       if (available < quantity) {
         return res.status(400).send({
           success: false,
@@ -151,62 +78,34 @@ console.log("Available:", available);
         });
       }
 
-      console.log("Available:", available);
-
-      const inventory = await Inventory.create({
+      const inventory = new Inventory({
         inventoryType,
         bloodGroup,
         quantity,
         email,
-        hospital: hospital._id,
-        organisation: orgId,
+        hospital: recipientType === "hospital" ? recipient._id : null,
+        donor: recipientType === "donor" ? recipient._id : null,
+        organisation: req.user.userId,
       });
+      await inventory.save();
 
-      const org = await Users.findById(orgId);
+      // Send confirmation email
+      const org = await Users.findById(req.user.userId);
+      if (recipientType === "hospital") {
+        await sendBloodIssuedEmail({
+          hospitalEmail: recipient.email,
+          hospitalName: recipient.hospitalName,
+          bloodGroup,
+          quantity,
+          orgName: org?.organisationName || "BloodCare Organisation",
+        });
+      }
 
-      await sendBloodIssuedEmail({
-        hospitalEmail: hospital.email,
-        hospitalName: hospital.hospitalName,
-        bloodGroup,
-        quantity,
-        orgName: org?.organisationName || "BloodCare",
-      });
-
-      return res.status(201).send({
-        success: true,
-        message: "Blood issued successfully",
-        inventory,
-      });
-    } 
-
- /*  const docs = await Inventory.find({
-  organisation: orgObjectId,
-  bloodGroup,
-  inventoryType: "in",
-});
-
-console.log("Matching docs:", docs);
-
- const docs1 = await Inventory.find({
-  organisation: orgObjectId,
-  bloodGroup,
-  inventoryType: "out",
-});
-
-console.log("Matching docs1:", docs1); */
-
-   
-      return res.status(400).send({
-      success: false,
-      message: "Invalid inventory type",
-    });
+      return res.status(201).send({ success: true, message: "Blood issued successfully", inventory });
+    }
   } catch (error) {
     console.log(error);
-    return res.status(500).send({
-      success: false,
-      message: "Error in Inventory API",
-      error: error.message,
-    });
+    return res.status(500).send({ success: false, message: "Error in Inventory API", error: error.message });
   }
 };
 

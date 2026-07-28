@@ -5,6 +5,7 @@ import DataTable from "../../components/DataTable.jsx";
 import { useSelector } from "react-redux";
 import API from "../../utils/axios.js";
 import DonorIllustration from "../../assets/DonorIllustration.jsx";
+import BloodCompatibilityChart from "../../components/BloodCompatibilityChart.jsx";
 
 const DonorDashboard = () => {
   const { user } = useSelector((state) => state.auth);
@@ -47,6 +48,10 @@ const DonorDashboard = () => {
       </div>
 
       <DataTable title="Donation History" columns={columns} data={history} loading={loading} />
+
+      <div className="mt-6">
+        <BloodCompatibilityChart highlightGroup={user?.bloodGroup} />
+      </div>
     </Layout>
   );
 };

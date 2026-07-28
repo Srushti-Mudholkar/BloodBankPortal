@@ -1,33 +1,33 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 // console.log(process.env.EMAIL_USER);
 
-// const transporter = nodemailer.createTransport({
-//   host: "smtp.gmail.com",
-//   port: 587,
-//   secure: false,
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS,
-//   },
-// });
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: false, // for port 587
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 // Generic send function
 const sendEmail = async ({ to, subject, html }) => {
   try {
-    const response = await resend.emails.send({
-      from: "BloodCare <onboarding@resend.dev>",
+    const info = await transporter.sendMail({
+      from: `"BloodCare" <${process.env.SMTP_USER}>`,
       to,
       subject,
       html,
     });
 
-    console.log("Email sent successfully:", response);
+    console.log("Email sent:", info.messageId);
   } catch (e) {
     console.error("Email error:", e);
   }
